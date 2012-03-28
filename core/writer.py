@@ -61,10 +61,6 @@ class Writer(object):
         diff = self.__get_time_diff()
         if diff:
             self.total_downloaded += buffer_length
-            
-            speed_multiplier = 1.0 / diff
-            bits_ps = downloaded_length * speed_multiplier
-            self.bps = bits_ps / float(8 * 1024)
         
     def __get_diff(self):
         now = now()
