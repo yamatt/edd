@@ -22,6 +22,8 @@ from os import fstat
 from stat import S_ISBLK as is_block_device
 from time import time as now
 
+import sys
+
 class Writer(object):
     def __init__(self, source_file, destination_device, block_size=1024):
         self._source_file = source_file
@@ -32,6 +34,7 @@ class Writer(object):
         self.current_transfered = 0
         self.bps = 0
         self.last_diff = 0
+        self.complete = False
         
     def get_errors(self):
         errors = []
@@ -52,6 +55,7 @@ class Writer(object):
             self._destination_device.write(buff)
             buffer_length = len(buff)
             self.__update_metrics(buffer_length)
+        self.complete = True
             
     def __update_metrics(self, buffer_length):
         diff = self.__get_time_diff()
@@ -69,6 +73,3 @@ class Writer(object):
             time_diff = now - last_time
         self.last_time = now
         return time_diff
-
-if __name__ == "__main__":
-    pass
