@@ -19,10 +19,7 @@
 """
 
 from os import fstat
-from stat import S_ISBLK as is_block_device
 from time import time as now
-
-import sys
 
 class Writer(object):
     def __init__(self, source_file, destination_device, block_size=1024):
@@ -32,8 +29,6 @@ class Writer(object):
         
         self.file_size = os.fstat(self.__source_file.fileno()).st_size
         self.current_transfered = 0
-        self.bps = 0
-        self.last_diff = 0
         self.complete = False
         
     def get_errors(self):
@@ -54,18 +49,18 @@ class Writer(object):
                 break
             self._destination_device.write(buff)
             buffer_length = len(buff)
-            self.__update_metrics(buffer_length)
-        self.complete = True
-            
-    def __update_metrics(self, buffer_length):
-        diff = self.__get_time_diff()
-        if diff:
             self.total_downloaded += buffer_length
-        
-    def __get_diff(self):
-        now = now()
-        time_diff = 0
-        if self.last_time:
-            time_diff = now - last_time
-        self.last_time = now
-        return time_diff
+        self.complete = True
+
+    def start_process(self, transfered, complete):
+        """
+        Duplicate of start. Wondering if there is a better way.
+        """
+        while True:
+            buff = self._source_file.read(self.__block_size)
+            if not buff:
+                break
+            self._destination_device.write(buff)
+            buffer_length = len(buff)
+            transfered.value += buffer_length
+        complete.value = True
