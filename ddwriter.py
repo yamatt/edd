@@ -19,50 +19,60 @@
 """
 
 from core import Writer
-from multiprocessing import Process
-from time import sleep
+from multiprocessing import Process, Value
+from time import sleep, time as now
 from argparse import ArgumentParser
 
-class WriterProcess(Writer):
-    output_format = "Progress: %(pc)s%% at [%(kbps)d]kbps"
+class WriterProcess(object):
+    output_format = "Progress: %(pc).1f%% at [%(bits_per_second)d] b/s"
     def __init__(self, source_path, destination_path, block_size, interval_delay=1):
         self.interval_delay = float(interval_delay)
+        
+        # used for getting process progress
+        self.transfered = Value("d", 0.0)
+        self.complete = Value("b", False)
+        
+        # attempt to open specified files
         try:
             source_file = open(source_path, 'rb')
             destination_file = open(destination_path, 'wb')
+            self.writer = Writer(source_file, destination_file, block_size)
         except IOError as e:
             print "This process could not complete. %s" % e
-        super(WriterProcess, self).__init__(source_file, destination_file, block_size)
         
     def _start_process(self):
-        self.__process = Process(target=self.start)
-        self.__process.start()
+        self.process = Process(target=self.writer.start_process, args=(self.transfered, self.complete))
+        self.process.start()
         
     def process(self):
         self._start_process()
         last_size = self.total_downloaded
-        while not self.complete:
+        time_started = now()
+        while not self.complete.value:
             sleep(self.interval_delay)
-            # collate data
+            
+            # collate stats
             data = dict()
-            data['file_size'] = float(self.file_size)
-            data['downloaded'] = float(self.total_downloaded)
-            data['diff'] = self.total_downloaded - last_size
-            data['diff_kbytes'] = data['diff'] * (8 * 1024)
-            data['bits_per_delay'] = data['diff'] / self.interval_delay
-            data['kbytes_per_delay'] = data['diff_kbytes'] / self.interval_delay
+            data['file_size'] = float(self.writer.file_size)
+            data['downloaded'] = self.transfered.value
+            data['diff'] = self.transfered.value - last_size
+            data['bits_per_second'] = data['diff'] / self.interval_delay
             data['percent_complete'] =  (data['downloaded'] / data['file_size']) * 100
+            data['time_taken'] = now() - time_started
             output_string = self.output_format % data
-            print output_string, "\r" # the \r is used so the next line is written on the same line
-        print "\nComplete."
+            print "\r", output_string # the \r resets to the first column
         
     def start(self):
         try:
             self.process()
+            print "Complete."
         except KeyboardInterrupt:
-            if self.__process.is_alive():
-                self.__process.terminate()
-            print "Forced exit."
+            self.process.terminate()
+            print "Aborted."
+        finally:
+            time_taken = now() - time_started
+            bytes_per_second = self.transfered.value / time_taken
+            print "%d bytes transfered in %.1f seconds. (%d bps)" % (self.transfered.value, time_taken, bytes_per_second)
             
 def get_args():
     parser = ArgumentParser()
