@@ -2,20 +2,20 @@
 # -*- coding: utf-8 -*-
 
 """
- This file is part of PROJECT NAME.
+ This file is part of Edd.
 
- PROJECT NAME is free software: you can redistribute it and/or modify
+ Edd is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
 
- PROJECT NAME is distributed in the hope that it will be useful,
+ Edd is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with PROJECT NAME.  If not, see <http://www.gnu.org/licenses/>.
+ along with Edd.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from core import Writer
@@ -26,6 +26,12 @@ from argparse import ArgumentParser
 class WriterProcess(object):
     output_format = "Progress: %(pc).1f%% at [%(bits_per_second)d] b/s"
     def __init__(self, source_path, destination_path, block_size, interval_delay=1):
+        """
+        @param source_path:a string containing the path to the file or device to read from
+        @param destination_path:a string containing the path to the file or device to write to
+        @param block_size:an integer used to specifcy how much to read and write in one go
+        @param interval_delay:an integer used to specify how often to update the display. Defaults to 1 second.
+        """
         self.interval_delay = float(interval_delay)
         
         # used for getting process progress
@@ -40,31 +46,28 @@ class WriterProcess(object):
         except IOError as e:
             print "This process could not complete. %s" % e
         
-    def _start_process(self):
-        self.process = Process(target=self.writer.start_process, args=(self.transfered, self.complete))
-        self.process.start()
-        
-    def process(self):
-        self._start_process()
-        last_size = self.total_downloaded
-        time_started = now()
-        while not self.complete.value:
-            sleep(self.interval_delay)
-            
-            # collate stats
-            data = dict()
-            data['file_size'] = float(self.writer.file_size)
-            data['downloaded'] = self.transfered.value
-            data['diff'] = self.transfered.value - last_size
-            data['bits_per_second'] = data['diff'] / self.interval_delay
-            data['percent_complete'] =  (data['downloaded'] / data['file_size']) * 100
-            data['time_taken'] = now() - time_started
-            output_string = self.output_format % data
-            print "\r", output_string # the \r resets to the first column
-        
     def start(self):
+        """
+        Start the transfer process.
+        """
         try:
-            self.process()
+            self.process = Process(target=self.writer.start_process, args=(self.transfered, self.complete))
+            self.process.start()
+            last_size = self.total_downloaded
+            time_started = now()
+            while not self.complete.value:
+                sleep(self.interval_delay)
+                
+                # collate stats
+                data = dict()
+                data['file_size'] = float(self.writer.file_size)
+                data['downloaded'] = self.transfered.value
+                data['diff'] = self.transfered.value - last_size
+                data['bits_per_second'] = data['diff'] / self.interval_delay
+                data['percent_complete'] =  (data['downloaded'] / data['file_size']) * 100
+                data['time_taken'] = now() - time_started
+                output_string = self.output_format % data
+                print "\r", output_string # the \r resets to the first column
             print "Complete."
         except KeyboardInterrupt:
             self.process.terminate()
