@@ -51,7 +51,7 @@ class WriterProcess(object):
         Start the transfer process.
         """
         try:
-            self.process = Process(target=self.writer.start_process, args=(self.transfered, self.complete))
+            self.process = Process(target=self.writer.start, args=(self.transfered, self.complete))
             self.process.start()
             last_size = self.total_downloaded
             time_started = now()
