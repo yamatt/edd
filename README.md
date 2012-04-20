@@ -3,7 +3,7 @@ Edd stands for Easy Data Description, but you might find it easier to think of i
 ## Why?
 The main purpose of Edd is to give people who are unfamiliar with Linux an easy (read: GUI) option for writing IMG files to a USB drive. In the future (or even currently) I can see people using USB drives much more than CDs so the ISO medium is kind of dated. We need a tool that is better equiped for writing to USB drives than getting new Linux users to use the command line. Especially when the potential for dd to go disasterously wrong is so high.
 
-Edd fulfills these new requirements by being GUI based, as simple as possible, ability to support multiple languages and multiple operating systems.
+Edd fulfills these new requirements by being GUI based, as simple as possible, has ability to support multiple languages and multiple operating systems, unit tests for validation, and includes check to determine if you are going to over-write something important.
 
 ## Status
 Unfinished.
