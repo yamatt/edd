@@ -39,5 +39,9 @@ class UnixDevice(file):
         else:
             raise IOError("The device path is not a block device.")
 
+class UnknownDevice(file):
+    def __init__(self, device_path, mode="wb"):
+        file.__init__(self, device_path, mode)
+
 if __name__ == "__main__":
     pass
