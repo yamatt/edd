@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'edd-progress.ui'
+# Form implementation generated from reading ui file 'edd_progress.ui'
 #
-# Created: Tue Mar 27 20:30:42 2012
+# Created: Fri Apr 20 17:22:33 2012
 #      by: PyQt4 UI code generator 4.8.6
 #
 # WARNING! All changes made in this file will be lost!
