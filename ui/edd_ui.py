@@ -1,19 +1,17 @@
-from edd_main import Ui_main_window as edd_main
-from edd_process import Ui_progress as edd_progress
+from edd_main import Ui_main_window
+from edd_process import Ui_progress
 
-class Edd_ui(object):
-    def __init__(self, assign=True):
-        if assign:
-            self.assign()
-        
-    def assign(self):
-        """
-        Creates assignments for events and triggers
-        """
-        pass
-        
-    def start(self):
-        """
-        Create the window
-        """
-        pass 
+"""
+The purpose of this module is to add the events and triggers to the basic ui template.
+Looks like there will need to be something done about the translations too.
+"""
+
+class EddMainWindow(Ui_main_window):
+    def setupUi(self, main_window):
+        super(EddMainWindow, self).setupUi(main_window)
+        # add event triggers
+    
+class EddProgressWindow(Ui_progress):
+    def setupUi(self, main_window):
+        super(EddMainWindow, self).setupUi(main_window)
+        # add event triggers
