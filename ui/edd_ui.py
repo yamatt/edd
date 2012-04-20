@@ -1,5 +1,5 @@
 from edd_main import Ui_main_window
-from edd_process import Ui_progress
+from edd_progress import Ui_progress
 
 """
 The purpose of this module is to add the events and triggers to the basic ui template.
